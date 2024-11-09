@@ -7,10 +7,10 @@ from constants import DATABASE_CONFIG_PATH
 
 def save_gyro_reading(client, userdata, message):
     global latest_mqtt_value
-    payload = message.payload.decode('utf-8')  # Decodifica el mensaje a texto
+    payload = message.payload.decode('utf-8')  
     
     
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  # Formato: "YYYY-MM-DD HH:MM:SS"
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())  
     
     if payload:
         try:
