@@ -42,17 +42,17 @@ Our modular IoT architecture divides the system into three main components:
 Below are images demonstrating our system’s current progress in detecting falls, monitoring emotional states, and analyzing sensor data.
 
 #### 1. Fall Detection via Computer Vision
-   <img width="594" alt="Screenshot 2024-11-08 at 8 47 59 p m" src="https://github.com/user-attachments/assets/76b9b66c-8e2b-4763-9b25-a9688748d490">
+   <img width="600" alt="Screenshot 2024-11-08 at 8 47 59 p m" src="https://github.com/user-attachments/assets/76b9b66c-8e2b-4763-9b25-a9688748d490">
 
    *Image 1: An example of the fall detection system accurately identifying a simulated fall.*
 
 #### 2. Emotion Recognition with YOLO
-   <img width="927" alt="Screenshot 2024-11-08 at 8 50 33 p m" src="https://github.com/user-attachments/assets/f05458d6-f5a0-4d6a-a580-fba913f97045">
+   <img width="600" alt="Screenshot 2024-11-08 at 8 50 33 p m" src="https://github.com/user-attachments/assets/f05458d6-f5a0-4d6a-a580-fba913f97045">
 
    *Image 2: The YOLO-based emotion recognition system analyzing facial expressions to detect emotional states.*
 
 #### 3. Sensor Data Analysis (MPU6050)
-   <img width="498" alt="Screenshot 2024-11-08 at 8 51 48 p m" src="https://github.com/user-attachments/assets/75fd8edc-82ab-4f44-b54c-ef7ee5de131c">
+   <img width="600" alt="Screenshot 2024-11-08 at 8 51 48 p m" src="https://github.com/user-attachments/assets/75fd8edc-82ab-4f44-b54c-ef7ee5de131c">
 
    *Image 3: Visualization of sensor data from MPU6050 accelerometer and gyroscope.*
 
@@ -60,3 +60,14 @@ Below are images demonstrating our system’s current progress in detecting fall
 
 ### Expected Impact
 This system aims to enhance the quality of life for elderly individuals in care facilities by offering proactive monitoring and reducing risks associated with both physical and emotional health. Real-time data and video feeds empower caregivers with timely insights, enabling effective resource allocation and rapid intervention.
+
+---
+
+### Contributors
+This project was developed by:
+- **Ximena Ortiz Gómez**
+- **Luis Antonio Salinas González**
+- **Pedro Luis Castañeda Pastelín**
+- **Pablo Armando Mac Beath Milián**
+
+--- 
