@@ -1,0 +1,8 @@
+Fall-Detection-4/
+__pycache__
+database/database.ini
+media/
+runs/
+venv/
+yolo-Weights/
+models/
