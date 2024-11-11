@@ -32,8 +32,14 @@ def save_gyro_reading(client, userdata, message, manager: PSQLManager):
             )
             print(reading.fall)
             print(reading)
+            
+            
             if reading.fall == 1:
-                notify_fall_detection(XIME_CHAT_ID, str(reading), False)
+                last_img = manager.get_last_image()
+                print(last_img.id)
+                alert = manager.get_cv_reading_from_img_id(last_img.id).alert(timestamp=reading.timestamp)
+                print(alert)
+                notify_fall_detection(XIME_CHAT_ID, alert, False, int(last_img.id))
             
             latest_mqtt_value = payload
             

@@ -1,12 +1,13 @@
 import requests
 
-def notify_fall_detection(phone_number, message, group):
+def notify_fall_detection(phone_number, message, group, img_id: int):
     try:
         url = 'http://localhost:3000/send-message'  # URL del servidor Express
         payload = {
             'number': phone_number,
             'message': message,
-            'group': group
+            'group': group,
+            'img_id': img_id
         }
         headers = {'Content-Type': 'application/json'}
 

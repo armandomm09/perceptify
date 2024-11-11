@@ -1,5 +1,5 @@
 const express = require('express');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const { group } = require('console');
 
@@ -37,11 +37,13 @@ client.initialize();
 
 
 // Función para enviar mensajes
-function sendMessage(number, message, group) {
-    return new Promise((resolve, reject) => {
+function sendMessage(number, message, group, img_id) {
+    return new Promise(async (resolve, reject) => {
         if (clientReady) {
             const chatId = `${number}@${group ? "g" : "c"}.us`;
-            client.sendMessage(chatId, message)
+            const media_msg = await MessageMedia.fromUrl(`http://localhost:8000/image/${img_id}`, {unsafeMime: true})
+            media_msg.mimetype = "image/jpg"
+            client.sendMessage(chatId, media_msg, {caption: message})
                 .then(response => {
                     console.log(`Mensaje enviado a ${number}: ${message}`);
                     resolve(true);
@@ -61,14 +63,14 @@ function sendMessage(number, message, group) {
 
 // Endpoint para recibir peticiones POST y enviar mensajes
 app.post('/send-message', async (req, res) => {
-    const { number, message, group } = req.body;
+    const { number, message, group, img_id } = req.body;
 
     if (!number || !message) {
         return res.status(400).send('Faltan parámetros: número y mensaje son requeridos.');
     }
 
     try {
-        await sendMessage(number, message, group);
+        await sendMessage(number, message, group, img_id);
         res.send(`Mensaje enviado a ${number}: ${message}`);
     } catch (error) {
         res.status(500).send('Error al enviar el mensaje.');

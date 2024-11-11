@@ -1,6 +1,7 @@
 import asyncio
-from fastapi.responses import StreamingResponse
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import os
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 import numpy as np
 import cv2
 from constants import TRAINED_MODEL_BEST_PATH, YOLO_V_11_PATH, DATABASE_CONFIG_PATH
@@ -82,3 +83,20 @@ async def video_stream():
                         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             
     return StreamingResponse(frame_generator(), media_type='multipart/x-mixed-replace; boundary=frame')
+
+@app.get("/image/{img_id}")
+async def get_img(img_id: int):
+    res = manager.get_img_by_id(img_id)
+    
+    if res:
+        print(res.path)
+        if os.path.exists(res.path):
+            return FileResponse(res.path, media_type="image/jpg")
+        else:
+            print("file not found")
+            raise HTTPException(status_code=404, detail="Image file not found")
+    else:
+        print("image not found")
+        raise HTTPException(status_code=404, detail="Image not found in database")
+        
+    
