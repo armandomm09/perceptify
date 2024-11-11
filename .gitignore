@@ -7,3 +7,7 @@ venv/
 yolo-Weights/
 models/
 .env
+whatsapp/.wwebjs_auth/
+whatsapp/.wwebjs_cache/
+whatsapp/node_modules/
+api2.py

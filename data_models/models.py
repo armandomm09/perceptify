@@ -23,6 +23,7 @@ class BeltReading(Base):
     accel_x=Column(Float, nullable=True)
     accel_y=Column(Float, nullable=True)
     accel_z=Column(Float, nullable=True)
+    fall=Column(Boolean, nullable=True)
     
     def __str__(self):
         return f"""Reading {self.id} at {self.timestamp}
@@ -32,6 +33,7 @@ class BeltReading(Base):
             accel_x: {self.accel_x}
             accel_y: {self.accel_y}
             accel_z: {self.accel_z}
+            {"There has been a fall" if self.fall else "No falls detected"}
         """
     
 class FallCameraReading(Base):

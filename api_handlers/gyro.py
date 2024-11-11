@@ -1,10 +1,13 @@
-
-from database import insert_belt_reading, load_db_config, connect_db
+from whatsapp import notify_fall_detection
 import json
 import time
-from constants import DATABASE_CONFIG_PATH
+from constants import DATABASE_CONFIG_PATH, XIME_CHAT_ID, IOT_GROUP_ID
 from data_models import BeltReading
 from database import PSQLManager
+import os
+import dotenv
+
+dotenv.load_dotenv()
 def save_gyro_reading(client, userdata, message, manager: PSQLManager):
     global latest_mqtt_value
     payload = message.payload.decode('utf-8')  
@@ -25,8 +28,12 @@ def save_gyro_reading(client, userdata, message, manager: PSQLManager):
                 accel_x = payload.get('accel_x', None),
                 accel_y = payload.get('accel_y', None),
                 accel_z = payload.get('accel_z', None),
+                fall = payload.get('fall', None)
             )
-            
+            print(reading.fall)
+            print(reading)
+            if reading.fall == 1:
+                notify_fall_detection(XIME_CHAT_ID, str(reading), False)
             
             latest_mqtt_value = payload
             

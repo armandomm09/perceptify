@@ -1,0 +1,1 @@
+from .whatsapp import notify_fall_detection

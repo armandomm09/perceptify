@@ -1,3 +1,8 @@
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
 TRAINED_MODEL_LAST_PATH = "runs/detect/train9/weights/last.pt"
 TRAINED_MODEL_LAST_COMPLETE_PATH = "/Users/armando/Progra/python/cv/fall-detection/runs/detect/train9/weights/last.pt"
 
@@ -15,3 +20,6 @@ OUTPUT_IMAGES_FOLDER_PATH = "media/out_images"
 OUTPUT_VIDEOS_FOLDER_PATH = "media/out_videos"
 
 DATABASE_CONFIG_PATH = "database/database.ini"
+
+XIME_CHAT_ID = os.getenv("XIME_WHATSAPP_ID")
+IOT_GROUP_ID = os.getenv("IOT_GROUP_ID")

@@ -48,6 +48,7 @@ class PSQLManager:
                 accel_x=row[5],
                 accel_y=row[6],
                 accel_z=row[7],
+                fall=row[8]
             )
             for row in rows
         ]
@@ -57,10 +58,10 @@ class PSQLManager:
     def insert_belt_reading(self, reading: BeltReading):
         try:
             cursor = self.conn.cursor()
-
+            print(reading)
             query = """
-            INSERT INTO belt_reading (timestamp, gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO belt_reading (timestamp, gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z, fall)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(
                 query,
@@ -72,11 +73,13 @@ class PSQLManager:
                     reading.accel_x,
                     reading.accel_y,
                     reading.accel_z,
+                    bool(reading.fall)
                 )
             )
             self.conn.commit()
             cursor.close()
         except Exception as e:
+            self.conn.rollback()
             print(f"Error al insertar datos en belt_reading: {e}")
             
     def get_all_cv_fall_readings(self):
