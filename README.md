@@ -14,18 +14,30 @@ Our system is designed to:
 
 ---
 
-### System Components
 
-1. **Hardware**:  
+### System Components (Updated)
+
+1. **Hardware**:
    - **ESP32 Microcontroller**: Captures sensor data and transmits video frames for processing.
    - **MPU6050 Accelerometer and Gyroscope**: Tracks movements to detect falls.
    - **Camera**: Provides real-time facial data for emotion detection.
 
-2. **Software and Communication**:  
+2. **Software and Communication**:
    - **MQTT Protocol**: Ensures secure and efficient data transfer for sensor data.
    - **WebSockets**: Allows real-time video feed transmission from the ESP32, enabling immediate processing and display on the caregiver’s dashboard.
    - **Ubuntu Server**: Hosts the AI models, processes data, and provides real-time visualization.
    - **Computer Vision with YOLO**: Detects falls and evaluates facial expressions to monitor emotional states.
+   - **WhatsApp Notifications**: Using `wwebjs` and `jspybridge`, the system sends immediate alerts to designated WhatsApp contacts when a fall is detected or if an emotional distress signal is identified, allowing caregivers to act quickly.
+
+---
+
+### WhatsApp Notification Feature
+
+To further enhance real-time monitoring, our system utilizes **wwebjs** and **jspybridge** to send automated alerts through WhatsApp. This functionality is triggered by the server upon detecting a fall or significant emotional shift, delivering notifications directly to the caregivers’ smartphones. This ensures that they are promptly informed of any potential risks, even if they are away from the monitoring station.
+
+#### How It Works:
+- When a fall is detected or an emotional distress signal is identified, the server triggers a notification via `jspybridge`, which communicates with a JavaScript file using `wwebjs` (WhatsApp Web JavaScript API).
+- The message is automatically sent to a pre-configured list of contacts, providing details of the detected event and ensuring a fast response.
 
 ---
 
