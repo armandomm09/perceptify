@@ -1,9 +1,10 @@
 import subprocess
+import time
 import cv2
 from ultralytics import YOLO
 import os
-
-
+from database import PSQLManager
+from data_models import FallCameraReading
 def get_center_of_bbox(box):
     x1, y1, x2, y2 = box
     center_x = int((x1 + x2) / 2)
@@ -16,7 +17,7 @@ def measure_distance(p1, p2):
 
 
 def analyze_video(
-    fall_model_path, person_model_path, video_path, output_path, open_in_finder=True
+    fall_model_path, person_model_path, video_path, output_path, open_in_finder=True, save=False, manager: PSQLManager=None
 ):
     fall_model = YOLO(fall_model_path)
     person_model = YOLO(person_model_path)
@@ -40,22 +41,24 @@ def analyze_video(
 
         fall_detected = False
         fall_center = None
-
+        confidence = 0
         for result in fall_results:
             for box in result.boxes:
                 x1, y1, x2, y2 = box.xyxy[0]
                 confidence = box.conf[0]
-
+                confidence = int(confidence*100)
+                
                 fall_center = get_center_of_bbox((x1, y1, x2, y2))
                 fall_detected = True
                 label = f"Fall: {int(confidence * 100)}%"
                 fall_box = (int(x1), int(y1), int(x2), int(y2))
-
+        
+        person_count = 0
         for person_result in person_results:
-
             person_result_names = person_result.names
 
             for person_box in person_result.boxes:
+                person_count += 1
                 obj_cls_id = person_box.cls.tolist()[0]
                 obj_cls_name = person_result_names[obj_cls_id]
 
@@ -85,7 +88,7 @@ def analyze_video(
                         distance = measure_distance(fall_center, person_center)
                         if distance < 200:
                             color = (0, 255, 0)
-
+                            
                             cv2.rectangle(frame, fall_box[:2], fall_box[2:], color, 2)
                             cv2.putText(
                                 frame,
@@ -100,7 +103,16 @@ def analyze_video(
                         break
                 else:
                     break
-
+            
+            if save and manager is not None:
+                data = FallCameraReading(
+                    timestamp=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                    fall_detected=fall_detected,
+                    confidence=confidence,
+                    num_people_detected=person_count
+                )
+                manager.insert_cv_reading(data)
+            
         out.write(frame)
 
     cap.release()
@@ -108,6 +120,7 @@ def analyze_video(
     print(f"Video procesado guardado en {output_path}")
     if open_in_finder:
         subprocess.run(["open", os.path.dirname(output_path)])
+
 
 
 def analyze_video_folder(

@@ -44,7 +44,7 @@ def analyze_photo(model_path, input_path, output_path):
    
    
     
-def analyze_frame(model_path, people_model_path, frame):
+def analyze_frame(model_path, people_model_path, frame, save=False):
     fall_model = YOLO(model_path)
     people_model = YOLO(people_model_path)
     
