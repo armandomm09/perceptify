@@ -182,6 +182,23 @@ class PSQLManager:
             return res
         except Exception as e:
             print("Error al buscar ultima imagen: ", e)
+            
+    def get_last_fall_detected_img(self) -> DetectionImage:
+        try:
+            cursor = self.conn.cursor()
+
+            cursor.execute("""SELECT * from IMAGES
+                            JOIN fall_detection on images.id = fall_detection.id
+                            WHERE fall_detection.fall_detected = true
+                            ORDER BY fall_detection.timestamp DESC LIMIT 1;""")
+
+            row = cursor.fetchone()
+
+            res = DetectionImage(id=row[0], path=row[1], timestamp=row[2])
+
+            return res
+        except Exception as e:
+            print("Error al buscar ultima imagen: ", e)
 
     def get_cv_reading_from_img_id(self, img_id):
         try:

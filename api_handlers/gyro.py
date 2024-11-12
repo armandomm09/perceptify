@@ -35,7 +35,7 @@ def save_gyro_reading(client, userdata, message, manager: PSQLManager):
             
             
             if reading.fall == 1:
-                last_img = manager.get_last_image()
+                last_img = manager.get_last_fall_detected_img()
                 print(last_img.id)
                 alert = manager.get_cv_reading_from_img_id(last_img.id).alert(timestamp=reading.timestamp)
                 print(alert)

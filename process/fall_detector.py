@@ -82,10 +82,7 @@ class FallDetector:
                             cv2.rectangle(frame, start_point, end_point, color, 2)
                             cv2.putText(frame, label, (start_point[0], start_point[1] - 10),
                                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-        # Guardar datos y llamar a save_frame
         if save:
-            # Crear instancia de FallCameraReading
-            # Insertar datos en la base de datos
             path = self.save_frame(frame)
             
             if self.manager is not None:
@@ -99,7 +96,6 @@ class FallDetector:
                 )
                 print(img_id)
                 self.manager.insert_cv_reading(data)
-            # Llamar a la función save_frame para guardar el frame
 
         return frame, fall_detected, confidence, person_count
 

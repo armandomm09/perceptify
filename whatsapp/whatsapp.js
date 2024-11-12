@@ -43,6 +43,7 @@ function sendMessage(number, message, group, img_id) {
             const chatId = `${number}@${group ? "g" : "c"}.us`;
             const media_msg = await MessageMedia.fromUrl(`http://localhost:8000/image/${img_id}`, {unsafeMime: true})
             media_msg.mimetype = "image/jpg"
+            console.log(`${number}, ${group}, http://localhost:8000/image/${img_id}`)
             client.sendMessage(chatId, media_msg, {caption: message})
                 .then(response => {
                     console.log(`Mensaje enviado a ${number}: ${message}`);
