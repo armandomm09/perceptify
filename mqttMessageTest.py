@@ -61,7 +61,7 @@ import time
 
 # Configura los detalles del broker MQTT
 broker = "localhost"  # Cambia si usas otra IP o dominio
-port = 1883           # Puerto del broker MQTT (puedes ajustarlo si usas otro)
+port = 1883          # Puerto del broker MQTT (puedes ajustarlo si usas otro)
 topic = "topic"       # Cambia al tema que usas en tu ESP
 
 # Crear un mensaje de ejemplo similar al que envía la ESP

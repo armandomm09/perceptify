@@ -30,6 +30,66 @@ class PSQLManager:
                 return conn
         except (psycopg2.DatabaseError, Exception) as e:
             raise Exception("Could not connect to database")
+        
+    def get_cv_falls_since(self, since_timestamp):
+        try:
+            cursor = self.conn.cursor()
+            print(f"Fetching CV falls since {since_timestamp}")
+            query = """
+                SELECT * FROM fall_detection
+                WHERE fall_detected = true AND timestamp >= %s
+                ORDER BY timestamp DESC
+            """
+            cursor.execute(query, (since_timestamp,))
+            rows = cursor.fetchall()
+            print(f"Number of CV falls found: {len(rows)}")
+            readings = [
+                FallCameraReading(
+                    id=row[0],
+                    timestamp=row[1],
+                    fall_detected=row[2],
+                    confidence=row[3],
+                    num_people_detected=row[4],
+                    image_id=row[5]
+                )
+                for row in rows
+            ]
+            return readings > 0
+        except Exception as e:
+            print("Error fetching CV falls since timestamp: ", e)
+            return False
+        
+    def get_belt_fall_detections_since(self, timestamp):
+        try:
+            cursor = self.conn.cursor()
+            
+            query = """
+                SELECT * FROM belt_reading
+                WHERE fall = true AND timestamp >= %s
+                ORDER BY timestamp DESC
+            """
+            cursor.execute(query, timestamp)
+            rows = cursor.fetchall()
+         
+            readings = [
+            BeltReading(
+                id=row[0],
+                timestamp=row[1],
+                gyro_x=row[2],
+                gyro_y=row[3],
+                gyro_z=row[4],
+                accel_x=row[5],
+                accel_y=row[6],
+                accel_z=row[7],
+                fall=row[8],
+            )
+            for row in rows
+            ]
+            return readings > 0
+        except Exception as e:
+            print(f"Error fetching belt readings since {timestamp}: {e}")
+            return False
+
 
     def get_all_belt_readings(self):
         cur = self.conn.cursor()
@@ -187,18 +247,24 @@ class PSQLManager:
         try:
             cursor = self.conn.cursor()
 
-            cursor.execute("""SELECT * from IMAGES
-                            JOIN fall_detection on images.id = fall_detection.id
-                            WHERE fall_detection.fall_detected = true
-                            ORDER BY fall_detection.timestamp DESC LIMIT 1;""")
+            cursor.execute("""
+                SELECT images.* FROM images
+                JOIN fall_detection ON images.id = fall_detection.img_id
+                WHERE fall_detection.fall_detected = true
+                ORDER BY fall_detection.timestamp DESC LIMIT 1;
+            """)
 
             row = cursor.fetchone()
 
-            res = DetectionImage(id=row[0], path=row[1], timestamp=row[2])
-
-            return res
+            if row:
+                res = DetectionImage(id=row[0], path=row[1], timestamp=row[2])
+                return res
+            else:
+                print("No fall detected images found.")
+                return None
         except Exception as e:
-            print("Error al buscar ultima imagen: ", e)
+            print("Error fetching the last fall-detected image: ", e)
+
 
     def get_cv_reading_from_img_id(self, img_id):
         try:
