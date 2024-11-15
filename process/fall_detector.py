@@ -12,6 +12,11 @@ class FallDetector:
         self.person_model = YOLO(person_model_path)
         self.manager = manager
 
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+    
     @staticmethod
     def get_center_of_bbox(box):
         x1, y1, x2, y2 = box
