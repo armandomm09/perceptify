@@ -1,1 +1,1 @@
-from .models import BeltReading, FallCameraReading, DetectionImage
+from .models import BeltReading, FallCameraReading, DetectionImage, EmotionDetection, EmotionDetectionVideo

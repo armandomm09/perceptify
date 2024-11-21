@@ -18,6 +18,7 @@ class DetectionImage(Base):
     path = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc), nullable=False)
     
+
 class BeltReading(Base):
     
         
@@ -51,7 +52,7 @@ class FallCameraReading(Base):
     fall_detected = Column(Boolean, nullable=False)
     confidence = Column(Float, nullable=True)
     num_people_detected = Column(Integer, nullable=False)
-    image_id = Column(Integer, ForeignKey("images.id"), nullable=True)
+    img_id = Column(Integer, ForeignKey("images.id"), nullable=True)
     # image = relationship("DetectionImage", back_populates="fall_readings")
     
     def __str__(self):
@@ -66,5 +67,40 @@ class FallCameraReading(Base):
             f"Confidence: {self.confidence}%\n"
             f"Number of people detected: {self.num_people_detected}"
         )
+    
+class EmotionDetection(Base):
+    __tablename__ = "emotion_detection"
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc), nullable=False)
+    img_id = Column(Integer, ForeignKey("images.id"), nullable=True)
+    dominant_emotion = Column(String(20), nullable=False)
+    angry_probability = Column(Float, nullable=False)
+    disgust_probability = Column(Float, nullable=False)
+    fear_probability = Column(Float, nullable=False)
+    happy_probability = Column(Float, nullable=False)
+    neutral_probability = Column(Float, nullable=False)
+    sad_probability = Column(Float, nullable=False)
+    surprise_probability = Column(Float, nullable=False)
+    video_id = Column(Integer, nullable=True)
+    
+    def __str__(self):
+        return f"""
+    Emotion detection at {self.timestamp}
+        with {self.dominant_emotion} as dominant emotion:
+            angry: {self.angry_probability}
+            disgust: {self.disgust_probability}
+            fear: {self.fear_probability}
+            happy: {self.happy_probability}
+            neutral: {self.neutral_probability}
+            sad: {self.sad_probability}
+        video number at {self.video_id}
+        """
+   
+class EmotionDetectionVideo(Base):
+    __tablename__ = "emotion_videos"
+    id = Column(Integer, primary_key=True, index=True)
+    path = Column(String, nullable=False)
+    timestamp = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc), nullable=False)
+     
     
 Base.metadata.create_all(bind=engine)

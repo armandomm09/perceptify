@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 import psycopg2
-from data_models import BeltReading, FallCameraReading, DetectionImage
+from data_models import BeltReading, FallCameraReading, DetectionImage, EmotionDetection, EmotionDetectionVideo
 
 
 class PSQLManager:
@@ -50,7 +50,7 @@ class PSQLManager:
                     fall_detected=row[2],
                     confidence=row[3],
                     num_people_detected=row[4],
-                    image_id=row[5]
+                    img_id=row[5]
                 )
                 for row in rows
             ]
@@ -162,7 +162,7 @@ class PSQLManager:
         ]
         return readings
 
-    def insert_cv_reading(self, reading: FallCameraReading):
+    def insert_fall_detection(self, reading: FallCameraReading):
         try:
             cursor = self.conn.cursor()
 
@@ -178,7 +178,7 @@ class PSQLManager:
                     reading.fall_detected,
                     reading.confidence,
                     reading.num_people_detected,
-                    reading.image_id,
+                    reading.img_id,
                 ),
             )
 
@@ -280,9 +280,59 @@ class PSQLManager:
                 fall_detected=row[2],
                 confidence=row[3],
                 num_people_detected=row[4],
-                image_id=row[5]
+                img_id=row[5]
             )
+
 
             return res
         except Exception as e:
             print("Error al buscar ultima imagen: ", e)
+            
+    def insert_emotion_detection(self, emotion_detection: EmotionDetection):
+        try:
+            cursor = self.conn.cursor()
+            
+            # Cambiar el nombre de la tabla y corregir nombres de columnas
+            query = """
+            INSERT INTO emotion_detection 
+            (timestamp, img_id, dominant_emotion, angry_probability, disgust_probability, fear_probability, happy_probability, neutral_probability, sad_probability, surprise_probability, video_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            
+            # Asegúrate de pasar los valores correctos en el orden correcto
+            cursor.execute(
+                query, 
+                (
+                    emotion_detection.timestamp,
+                    emotion_detection.img_id,
+                    emotion_detection.dominant_emotion,
+                    emotion_detection.angry_probability,
+                    emotion_detection.disgust_probability,
+                    emotion_detection.fear_probability,
+                    emotion_detection.happy_probability,
+                    emotion_detection.neutral_probability,
+                    emotion_detection.sad_probability,
+                    emotion_detection.surprise_probability,
+                    emotion_detection.video_id
+                )
+            )
+            
+            self.conn.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error al insertar detección de emociones: {e}")
+
+    
+    def create_emotion_detection_video(self, video_path):
+        try:
+            cursor = self.conn.cursor()
+            
+            cursor.execute(
+                "INSERT INTO emotion_videos (path) VALUES (%s) RETURNING id", (video_path,)
+            )
+            video_id = cursor.fetchone()[0]
+            self.conn.commit()
+            cursor.close()
+            return video_id
+        except Exception as e:
+            print(f"Error al insertar video: {e}")

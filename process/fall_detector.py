@@ -12,10 +12,10 @@ class FallDetector:
         self.person_model = YOLO(person_model_path)
         self.manager = manager
 
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
+    # def __new__(cls, *args, **kwargs):
+    #     if not cls._instance:
+    #         cls._instance = super().__new__(cls, *args, **kwargs)
+    #     return cls._instance
     
     @staticmethod
     def get_center_of_bbox(box):
@@ -97,10 +97,10 @@ class FallDetector:
                     fall_detected=fall_detected,
                     confidence=int(confidence * 100),
                     num_people_detected=person_count,
-                    image_id=img_id
+                    img_id=img_id
                 )
                 print(img_id)
-                self.manager.insert_cv_reading(data)
+                self.manager.insert_fall_detection(data)
 
         return frame, fall_detected, confidence, person_count
 
