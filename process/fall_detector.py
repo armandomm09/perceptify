@@ -10,6 +10,7 @@ class FallDetector:
     def __init__(self, fall_model_path, person_model_path, manager: PSQLManager):
         self.fall_model = YOLO(fall_model_path)
         self.person_model = YOLO(person_model_path)
+        self.person_model.overrides['verbose'] = False
         self.manager = manager
 
     # def __new__(cls, *args, **kwargs):
@@ -28,7 +29,7 @@ class FallDetector:
     def measure_distance(p1, p2):
         return ((p1[0] - p2[0]) **2 + (p1[1] - p2[1]) **2) ** 0.5
 
-    def save_frame(self, frame, image_output_dir="/Users/armando/Progra/python/cv/fall-detection/media/runs"):
+    def save_frame(self, frame, image_output_dir="/Users/armando/Progra/python/cv/fall-detection/media/fall/runs"):
         if image_output_dir is not None:
             if not os.path.exists(image_output_dir):
                 os.makedirs(image_output_dir)
@@ -45,9 +46,9 @@ class FallDetector:
         return image_path
 
     def analyze_frame(self, frame, save=False, image_output_dir=None):
-        fall_results = self.fall_model.track(frame, conf=0.5, iou=0.3)
-        person_results = self.person_model.track(frame, conf=0.4, iou=0.3)
-
+        processed_frame = frame.copy()
+        fall_results = self.fall_model.track(processed_frame, conf=0.5, iou=0.3)
+        person_results = self.person_model.track(processed_frame, conf=0.4, iou=0.3)
         fall_detected = False
         fall_center = None
         confidence = 0
@@ -77,18 +78,19 @@ class FallDetector:
                     person_count += 1
                     px1, py1, px2, py2 = person_box.xyxy[0]
                     person_center = self.get_center_of_bbox((px1, py1, px2, py2))
-                    cv2.rectangle(frame, (int(px1), int(py1)), (int(px2), int(py2)), (255, 0, 0), 2)
-                    cv2.putText(frame, "Person", (int(px1), int(py1) - 10),
+                    cv2.rectangle(processed_frame, (int(px1), int(py1)), (int(px2), int(py2)), (255, 0, 0), 2)
+                    cv2.putText(processed_frame, "Person", (int(px1), int(py1) - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
                     if fall_detected:
                         distance = self.measure_distance(fall_center, person_center)
                         if distance < 200:
                             color = (0, 255, 0)
-                            cv2.rectangle(frame, start_point, end_point, color, 2)
-                            cv2.putText(frame, label, (start_point[0], start_point[1] - 10),
+                            cv2.rectangle(processed_frame, start_point, end_point, color, 2)
+                            cv2.putText(processed_frame, label, (start_point[0], start_point[1] - 10),
                                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                            
         if save:
-            path = self.save_frame(frame)
+            path = self.save_frame(processed_frame)
             
             if self.manager is not None:
                 img_id = self.manager.insert_image(path)
@@ -99,10 +101,10 @@ class FallDetector:
                     num_people_detected=person_count,
                     img_id=img_id
                 )
-                print(img_id)
+                print(img_id, "Processed frame")
                 self.manager.insert_fall_detection(data)
 
-        return frame, fall_detected, confidence, person_count
+        return processed_frame, fall_detected, confidence, person_count
 
     def analyze_video(self, video_path, output_path, open_in_finder=True, save=False):
         cap = cv2.VideoCapture(video_path)

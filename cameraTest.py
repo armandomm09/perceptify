@@ -11,7 +11,7 @@ async def send_video_stream():
     async with websockets.connect(uri) as websocket:
         
         cap = cv2.VideoCapture(0)
-
+        print(int(cap.get(cv2.CAP_PROP_FPS)))
         while True:
             ret, frame = cap.read()
             if not ret:

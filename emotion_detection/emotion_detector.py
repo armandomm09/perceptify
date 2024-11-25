@@ -148,23 +148,18 @@ class EmotionDetector:
                 print(detection)
                 self.manager.insert_emotion_detection(detection)
 
-        return processed_frame
+        return processed_frame, class_probabilities 
 
     def analyze_video(self, video_path, output_path, open_in_finder=True, save=False, frames_path=None):
-        """
-        Procesar video desde un archivo, detectar emociones y guardar el video procesado.
-        """
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             print(f"No se pudo abrir el video {video_path}")
             return
 
         fps = cap.get(cv2.CAP_PROP_FPS)
-        if fps == 0.0:
-            fps = 30.0
 
-        out = None  # Inicializar el VideoWriter después
-        frame_count = 0  # Contador de frames procesados
+        out = None
+        frame_count = 0
         video_id = None
         if self.manager is not None and save:
             video_id = self.manager.create_emotion_detection_video(output_path)
@@ -174,31 +169,37 @@ class EmotionDetector:
             if not ret:
                 break
 
-            processed_frame = self.analyze_frame(frame, save=save, video_id=video_id, image_output_dir=frames_path)
+            processed_frame, emotion_label = self.analyze_frame(
+                frame, save=save, video_id=video_id, image_output_dir=frames_path
+            )
             frame_count += 1
 
             if out is None:
-                # Inicializar VideoWriter con el tamaño del frame procesado
                 frame_height, frame_width = processed_frame.shape[:2]
+                print(f"Initializing VideoWriter with size: {frame_width}x{frame_height} and FPS: {fps}")
                 out = cv2.VideoWriter(
-                    output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (frame_width, frame_height)
+                    output_path, cv2.VideoWriter_fourcc(*"H264"), fps, (frame_width, frame_height)
                 )
+                if not out.isOpened():
+                    print("No se pudo inicializar el VideoWriter")
+                    return
+
+            # Verificar que el tamaño del frame coincida
+            if processed_frame.shape[1] != frame_width or processed_frame.shape[0] != frame_height:
+                print(f"Frame {frame_count} tiene un tamaño diferente: {processed_frame.shape}")
+                continue
 
             out.write(processed_frame)
-
-            # Eliminar o comentar las siguientes líneas para no mostrar los frames
-            # cv2.imshow("Detección de Emociones", processed_frame)
-            # if cv2.waitKey(1) & 0xFF == ord("q"):
-            #     break
 
         cap.release()
         if out is not None:
             out.release()
-        # cv2.destroyAllWindows()
         print(f"Video procesado guardado en {output_path}")
         print(f"Total de frames procesados: {frame_count}")
         if open_in_finder:
             subprocess.run(["open", os.path.dirname(output_path)])
+
+
 
     def analyze_video_folder(self, input_folder_path, output_folder_path, number_of_videos=None, start_video=1, suffix=""):
         for i, filename in enumerate(os.listdir(input_folder_path), start=start_video):

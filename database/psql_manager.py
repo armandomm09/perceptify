@@ -336,3 +336,71 @@ class PSQLManager:
             return video_id
         except Exception as e:
             print(f"Error al insertar video: {e}")
+            
+    def analyze_emotions_by_video_id(self, video_id):
+        try:
+            cursor = self.conn.cursor()
+            
+            # Consulta para obtener todas las filas relacionadas con el video_id
+            query = """
+            SELECT 
+                dominant_emotion,
+                AVG(angry_probability) AS avg_angry,
+                AVG(disgust_probability) AS avg_disgust,
+                AVG(fear_probability) AS avg_fear,
+                AVG(happy_probability) AS avg_happy,
+                AVG(neutral_probability) AS avg_neutral,
+                AVG(sad_probability) AS avg_sad,
+                AVG(surprise_probability) AS avg_surprise
+            FROM emotion_detection
+            WHERE video_id = %s
+            GROUP BY dominant_emotion
+            """
+            
+            cursor.execute(query, (video_id,))
+            results = cursor.fetchall()
+            
+            if not results:
+                print(f"No se encontraron registros para el video_id: {video_id}")
+                return None
+
+            # Procesar los datos obtenidos
+            emotion_data = {}
+            for row in results:
+                dominant_emotion = row[0]
+                emotion_data[dominant_emotion] = {
+                    "avg_angry": row[1],
+                    "avg_disgust": row[2],
+                    "avg_fear": row[3],
+                    "avg_happy": row[4],
+                    "avg_neutral": row[5],
+                    "avg_sad": row[6],
+                    "avg_surprise": row[7],
+                }
+            
+            # Determinar la emoción predominante más frecuente
+            query_dominant = """
+            SELECT dominant_emotion, COUNT(*)
+            FROM emotion_detection
+            WHERE video_id = %s
+            GROUP BY dominant_emotion
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+            """
+            cursor.execute(query_dominant, (video_id,))
+            dominant_emotion_row = cursor.fetchone()
+            most_frequent_emotion = dominant_emotion_row[0] if dominant_emotion_row else None
+            
+            cursor.close()
+            
+            # Construir el análisis final
+            analysis = {
+                "video_id": video_id,
+                "average_probabilities": emotion_data,
+                "most_frequent_emotion": most_frequent_emotion
+            }
+            
+            return analysis
+        except Exception as e:
+            print(f"Error al analizar las emociones para el video_id {video_id}: {e}")
+            return None
