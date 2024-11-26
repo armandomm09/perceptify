@@ -128,7 +128,7 @@ class EmotionDetector:
             processed_frame = frame
 
         if save:
-            self.save_frame(processed_frame, image_output_dir=image_output_dir)
+            # self.save_frame(processed_frame, image_output_dir=image_output_dir)
             
             if video_id is not None:
                 print("Saving video to db")
@@ -150,7 +150,7 @@ class EmotionDetector:
 
         return processed_frame, class_probabilities 
 
-    def analyze_video(self, video_path, output_path, open_in_finder=True, save=False, frames_path=None):
+    def analyze_video(self, video_path, output_path, open_in_finder=True, save=False, frames_path=None, uuid="x"):
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             print(f"No se pudo abrir el video {video_path}")
@@ -162,7 +162,7 @@ class EmotionDetector:
         frame_count = 0
         video_id = None
         if self.manager is not None and save:
-            video_id = self.manager.create_emotion_detection_video(output_path)
+            video_id = self.manager.create_emotion_detection_video(output_path, uuid=uuid)
             
         while cap.isOpened():
             ret, frame = cap.read()

@@ -140,31 +140,36 @@ with open("media/fall/in_images/img3.jpg", "rb") as f:
 @app.get("/detect_emotion")
 async def detect_emotion_endpoint():
     global detect_emotion_flag
-    try:
-        detect_emotion_flag = True
-        video_uuid = uuid.uuid4()
-        # Generar un nombre único para el video
-        video_filepath_in = f"media/emotions/in_videos/{video_uuid}.mp4"
-        video_filepath_out = f"media/emotions/videos_runs/{video_uuid}.mp4"
+    if latest_frame is not None:
+        try:
+            detect_emotion_flag = True
+            video_uuid = uuid.uuid4()
+            # Generar un nombre único para el video
+            video_filepath_in = f"media/emotions/in_videos/{video_uuid}.mp4"
+            video_filepath_out = f"media/emotions/videos_runs/{video_uuid}.mp4"
 
-        # Grabar video durante 10 segundos
-        await record_video_from_frames(video_filepath_in, duration=10)
+            # Grabar video durante 10 segundos
+            await record_video_from_frames(video_filepath_in, duration=15)
 
-        # Procesar el video usando analyze_video
-        emotion_detector.analyze_video(
-            video_path=video_filepath_in,
-            output_path=video_filepath_out,
-            open_in_finder=False,
-            save=True,
-            frames_path="media/emotions/runs"
-        )
+            # Procesar el video usando analyze_video
+            emotion_detector.analyze_video(
+                video_path=video_filepath_in,
+                output_path=video_filepath_out,
+                open_in_finder=False,
+                save=True,
+                frames_path="media/emotions/runs",
+                uuid=video_uuid
+            )
 
-        detect_emotion_flag = False
-        return {"video_uuid": video_uuid}
-    except Exception as e:
-        detect_emotion_flag = False
-        print(f"Ocurrió un error en detect_emotion: {e}")
-        raise HTTPException(status_code=500, detail="Error en la detección de emociones")
+            detect_emotion_flag = False
+            return {"video_uuid": video_uuid}
+        except Exception as e:
+            detect_emotion_flag = False
+            print(f"Ocurrió un error en detect_emotion: {e}")
+            raise HTTPException(status_code=500, detail="Error en la detección de emociones")
+    else:
+        return {"No stream": True}
+    
 
 @app.get("/image/{img_id}")
 async def get_img(img_id: int):
@@ -195,3 +200,16 @@ async def get_video_info(video_id: str):
             "Content-Disposition": f"inline; filename={video_id}.mp4"
         }
     )
+    
+@app.get("/all_emotion_videos")
+async def get_all_emotion_videos():
+    
+    videos = manager.get_all_emotion_videos()
+    
+    return [video.to_json() for video in videos]
+
+@app.get("/emotions_by_video/{video_id}")
+async def get_emotions_by_video(video_id: int):
+    
+    emotions = manager.analyze_emotions_by_video_id(video_id)
+    return emotions

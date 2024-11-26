@@ -39,15 +39,15 @@ def save_gyro_reading(client, userdata, message, manager: PSQLManager):
             # Si reading.fall == 1 indica una detección de caída
             if reading.fall == 1:
                 # Calcula la hora exacta de hace un minuto desde el momento actual
-                last_minute_time = datetime.datetime.now() - datetime.timedelta(minutes=1)
+                last_minute_time = datetime.datetime.now() - datetime.timedelta(minutes=0.25)
                 
                 # Verifica si no se ha enviado una alerta en el último minuto
-                if last_alert_time is None or (timestamp - last_alert_time).total_seconds() > 60:
+                if last_alert_time is None or (timestamp - last_alert_time).total_seconds() > 30:
                     print("No se ha enviado una alerta en el último minuto, enviando alerta con imagen.")
                     
                     # Obtiene la última imagen de detección de caída en CV (visión por computadora)
                     last_img = manager.get_last_fall_detected_img()
-                    
+                    # fall_in_last_30s = (last_img.timestamp - last_alert_time).total_seconds() > 30
                     if last_img:
                         # Genera la alerta con la hora de detección
                         alert = f"Detección de caída a las {timestamp}."

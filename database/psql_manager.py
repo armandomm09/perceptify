@@ -323,12 +323,12 @@ class PSQLManager:
             print(f"Error al insertar detección de emociones: {e}")
 
     
-    def create_emotion_detection_video(self, video_path):
+    def create_emotion_detection_video(self, video_path, uuid):
         try:
             cursor = self.conn.cursor()
             
             cursor.execute(
-                "INSERT INTO emotion_videos (path) VALUES (%s) RETURNING id", (video_path,)
+                "INSERT INTO emotion_videos (path, uuid) VALUES (%s, %s) RETURNING id", (video_path, uuid)
             )
             video_id = cursor.fetchone()[0]
             self.conn.commit()
@@ -344,17 +344,18 @@ class PSQLManager:
             # Consulta para obtener todas las filas relacionadas con el video_id
             query = """
             SELECT 
-                dominant_emotion,
-                AVG(angry_probability) AS avg_angry,
-                AVG(disgust_probability) AS avg_disgust,
-                AVG(fear_probability) AS avg_fear,
-                AVG(happy_probability) AS avg_happy,
-                AVG(neutral_probability) AS avg_neutral,
-                AVG(sad_probability) AS avg_sad,
-                AVG(surprise_probability) AS avg_surprise
-            FROM emotion_detection
-            WHERE video_id = %s
-            GROUP BY dominant_emotion
+                ev.uuid,
+                e.dominant_emotion,
+                e.angry_probability,
+                e.disgust_probability,
+                e.fear_probability,
+                e.happy_probability,
+                e.neutral_probability,
+                e.sad_probability,
+                e.surprise_probability
+            FROM emotion_detection e
+            JOIN emotion_videos ev ON e.video_id = ev.id
+            WHERE e.video_id = %s
             """
             
             cursor.execute(query, (video_id,))
@@ -364,39 +365,64 @@ class PSQLManager:
                 print(f"No se encontraron registros para el video_id: {video_id}")
                 return None
 
-            # Procesar los datos obtenidos
-            emotion_data = {}
-            for row in results:
-                dominant_emotion = row[0]
-                emotion_data[dominant_emotion] = {
-                    "avg_angry": row[1],
-                    "avg_disgust": row[2],
-                    "avg_fear": row[3],
-                    "avg_happy": row[4],
-                    "avg_neutral": row[5],
-                    "avg_sad": row[6],
-                    "avg_surprise": row[7],
-                }
+            # Inicializar variables para calcular promedios y recolectar UUID
+            total_angry = total_disgust = total_fear = total_happy = 0
+            total_neutral = total_sad = total_surprise = 0
+            count = 0
+            dominant_emotion_counts = {}
+            video_uuid = None  # Será el mismo para todas las filas, ya que proviene de emotions_videos
             
-            # Determinar la emoción predominante más frecuente
-            query_dominant = """
-            SELECT dominant_emotion, COUNT(*)
-            FROM emotion_detection
-            WHERE video_id = %s
-            GROUP BY dominant_emotion
-            ORDER BY COUNT(*) DESC
-            LIMIT 1
-            """
-            cursor.execute(query_dominant, (video_id,))
-            dominant_emotion_row = cursor.fetchone()
-            most_frequent_emotion = dominant_emotion_row[0] if dominant_emotion_row else None
+            for row in results:
+                video_uuid = row[0]
+                dominant_emotion = row[1]
+                angry_prob = row[2]
+                disgust_prob = row[3]
+                fear_prob = row[4]
+                happy_prob = row[5]
+                neutral_prob = row[6]
+                sad_prob = row[7]
+                surprise_prob = row[8]
+                
+                # Sumar las probabilidades para calcular el promedio después
+                total_angry += angry_prob
+                total_disgust += disgust_prob
+                total_fear += fear_prob
+                total_happy += happy_prob
+                total_neutral += neutral_prob
+                total_sad += sad_prob
+                total_surprise += surprise_prob
+                count += 1
+
+                # Contar las emociones dominantes para determinar la más frecuente
+                dominant_emotion_counts[dominant_emotion] = dominant_emotion_counts.get(dominant_emotion, 0) + 1
+
+            # Calcular promedios de las probabilidades
+            avg_angry = total_angry / count
+            avg_disgust = total_disgust / count
+            avg_fear = total_fear / count
+            avg_happy = total_happy / count
+            avg_neutral = total_neutral / count
+            avg_sad = total_sad / count
+            avg_surprise = total_surprise / count
+
+            # Determinar la emoción dominante más frecuente
+            most_frequent_emotion = max(dominant_emotion_counts, key=dominant_emotion_counts.get)
             
             cursor.close()
             
             # Construir el análisis final
             analysis = {
                 "video_id": video_id,
-                "average_probabilities": emotion_data,
+                "video_uuid": video_uuid,
+                "average_probabilities": {
+                    "avg_angry": avg_angry,
+                    "avg_disgust": avg_disgust,
+                    "avg_fear": avg_fear,
+                    "avg_happy": avg_happy,
+                    "avg_neutral": avg_neutral,
+                    "avg_sad": avg_sad,
+                    "avg_surprise": avg_surprise
+                },
                 "most_frequent_emotion": most_frequent_emotion
             }
             
@@ -404,3 +430,27 @@ class PSQLManager:
         except Exception as e:
             print(f"Error al analizar las emociones para el video_id {video_id}: {e}")
             return None
+
+
+    def get_all_emotion_videos(self):
+        try:
+            cursor = self.conn.cursor()
+
+            cursor.execute("SELECT * FROM emotion_videos")
+
+            rows = cursor.fetchall()
+
+            readings = [
+               EmotionDetectionVideo(
+                   id=row[0],
+                   path=row[1],
+                   timestamp=row[2],
+                   uuid=row[3]
+               )
+               for row in rows
+            ]
+
+            return readings
+        
+        except Exception as e:
+            print("Error getting all emotions: ", e)

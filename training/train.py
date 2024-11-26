@@ -12,3 +12,16 @@ def continue_training(last_pt_path):
     torch.cuda.empty_cache() 
 
     
+# from tool import darknet2pytorch
+# import torch
+
+# # load weights from darknet format
+# model = darknet2pytorch.Darknet('path/to/cfg/yolov4-416.cfg', inference=True)
+# model.load_weights('path/to/weights/yolov4-416.weights')
+
+# # save weights to pytorch format
+# torch.save(model.state_dict(), 'path/to/save/yolov4-pytorch.pth')
+
+# # reload weights from pytorch format
+# model_pt = darknet2pytorch.Darknet('path/to/cfg/yolov4-416.cfg', inference=True)
+# model_pt.load_state_dict(torch.load('path/to/save/yolov4-pytorch.pth'))

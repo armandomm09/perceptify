@@ -101,6 +101,15 @@ class EmotionDetectionVideo(Base):
     id = Column(Integer, primary_key=True, index=True)
     path = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc), nullable=False)
+    uuid = Column(String, nullable=True)
+    
+    def to_json(self):
+        return {
+            "id": self.id,
+            "path": self.path,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
+            "uuid": self.uuid,
+        }
      
     
 Base.metadata.create_all(bind=engine)

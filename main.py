@@ -11,12 +11,13 @@ from database import PSQLManager
 from emotion_detection import EmotionDetector
 
 manager = PSQLManager(DATABASE_CONFIG_PATH)
-detector = EmotionDetector(manager)
-# detector = FallDetector()
-detector.analyze_video("media/emotions/in_videos/video_heri.mp4", "media/emotions/out_videos/video_heri.mp4", open_in_finder=True, save=True, frames_path="media/emotions/runs")
+# detector = EmotionDetector(manager)
+# detector.analyze_video("media/emotions/in_videos/video_heri.mp4", "media/emotions/out_videos/video_heri.mp4", open_in_finder=True, save=True, frames_path="media/emotions/runs")
+# detector.analyze_video_folder("media/emotions/in_videos", "media/emotions/out_videos")
 # detector.analyze_photo("media/emotions/in_images/IMG_4685.JPG", "media/emotions/out_images/IMG_4685.JPG")
-# detector = FallDetector(TRAINED_MODEL_BEST_PATH, YOLO_V_11_PATH, manager)
+detector = FallDetector("models/best.pt", YOLO_V_11_PATH, manager)
 # detector.analyze_video("media/in_videos/video7.mp4", "media/out_videos/video7.mp4", save=True, open_in_finder=True)
+detector.analyze_video_folder("media/fall/in_videos", "media/fall/out_videos")
 
 # results = manager.get_all_cv_fall_readings()
 # imgs = manager.get_all_images()
