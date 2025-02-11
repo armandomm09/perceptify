@@ -75,11 +75,3 @@ This system aims to enhance the quality of life for elderly individuals in care 
 
 ---
 
-### Contributors
-This project was developed by:
-- **Ximena Ortiz Gómez**
-- **Luis Antonio Salinas González**
-- **Pedro Luis Castañeda Pastelín**
-- **Pablo Armando Mac Beath Milián**
-
---- 
