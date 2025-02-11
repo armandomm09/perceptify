@@ -2,7 +2,7 @@ import requests
 
 def notify_fall_detection(phone_number: str, message: str, group:bool, img_id: int):
     try:
-        url = 'http://localhost:3000/send-message'  # URL del servidor Express
+        url = 'http://localhost:3000/send-message'  
         payload = {
             'number': phone_number,
             'message': message,
@@ -23,5 +23,3 @@ def notify_fall_detection(phone_number: str, message: str, group:bool, img_id: i
     except Exception as e:
         print(f"Error al realizar la solicitud HTTP: {e}")
 
-# Ejemplo de uso
-# notify_fall_detection('5212223445931', 'Mensaje desde Python con Express.js')

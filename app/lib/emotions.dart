@@ -17,7 +17,7 @@ class EmotionsPage extends StatefulWidget {
 class _EmotionsPageState extends State<EmotionsPage> {
   Future<List<VideoData>> fetchVideos() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8000/all_emotion_videos'));
+        await http.get(Uri.parse('http://10.50.87.175:8000/all_emotion_videos'));
 
     if (response.statusCode == 200) {
       List<dynamic> jsonData = json.decode(response.body);
@@ -74,9 +74,7 @@ class _EmotionsPageState extends State<EmotionsPage> {
                   itemBuilder: (context, index) {
                     VideoData video = videos[index];
                     return GestureDetector(
-                      // En emotions_page.dart
           onTap: () {
-            // Navegar a la página del reproductor de video
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -93,10 +91,10 @@ class _EmotionsPageState extends State<EmotionsPage> {
                         child: Center(
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            height: 60,
+                            height: 100,
                             width: MediaQuery.of(context).size.width * 0.8,
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent,
+                              color: const Color.fromARGB(99, 68, 137, 255),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Padding(

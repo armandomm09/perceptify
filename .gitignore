@@ -13,8 +13,9 @@ whatsapp/node_modules/
 api2.py
 test2.py
 training/darknet
-
-
+tests/clip_frc.py
+tests/clip_test.py
+tests/siglip_test.py
 # Miscellaneous
 app/*.class
 app/*.log

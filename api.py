@@ -21,7 +21,6 @@ conn = None
 
 manager = PSQLManager(DATABASE_CONFIG_PATH)
 
-# Almacenar los frames recibidos en una lista
 frame_queue = []
 
 latest_frame = None
@@ -86,7 +85,6 @@ app = create_app()
 fall_detector = FallDetector(TRAINED_MODEL_BEST_PATH, YOLO_V_11_PATH, manager)
 emotion_detector = EmotionDetector(manager)
 
-# Variable global para controlar la detección de emociones
 detect_emotion_flag = False
 
 @app.get("/video_feed")
@@ -98,7 +96,7 @@ async def video_stream():
                     frame = latest_frame if latest_frame is not None else default_frame
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-                await asyncio.sleep(0.01)  # Pequeña pausa para ceder el control al bucle de eventos
+                await asyncio.sleep(0.01)  
         except asyncio.CancelledError:
             print("El cliente se ha desconectado del video feed")
         except Exception as e:
@@ -119,12 +117,11 @@ async def video_feed(websocket: WebSocket):
             if image is not None:
                 processed_frame, fall_detected, confidence, person_count = fall_detector.analyze_frame(image, save=True)
 
-                # Codificar la imagen procesada en JPEG
                 _, buffer = cv2.imencode('.jpg', processed_frame)
                 processed_data = buffer.tobytes()
 
                 async with frame_lock:
-                    latest_frame = processed_data  # Almacena la imagen procesada en bytes
+                    latest_frame = processed_data 
                 async with clear_frame_lock:
                     latest_clear_frame = image.copy()
             else:
@@ -144,14 +141,14 @@ async def detect_emotion_endpoint():
         try:
             detect_emotion_flag = True
             video_uuid = uuid.uuid4()
-            # Generar un nombre único para el video
+           
             video_filepath_in = f"media/emotions/in_videos/{video_uuid}.mp4"
             video_filepath_out = f"media/emotions/videos_runs/{video_uuid}.mp4"
 
-            # Grabar video durante 10 segundos
+           
             await record_video_from_frames(video_filepath_in, duration=15)
 
-            # Procesar el video usando analyze_video
+           
             emotion_detector.analyze_video(
                 video_path=video_filepath_in,
                 output_path=video_filepath_out,

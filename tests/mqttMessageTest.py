@@ -59,12 +59,11 @@ import paho.mqtt.client as mqtt
 import json
 import time
 
-# Configura los detalles del broker MQTT
-broker = "localhost"  # Cambia si usas otra IP o dominio
-port = 1883          # Puerto del broker MQTT (puedes ajustarlo si usas otro)
-topic = "topic"       # Cambia al tema que usas en tu ESP
+broker = "localhost" 
+port = 1883          
+topic = "topic"      
 
-# Crear un mensaje de ejemplo similar al que envía la ESP
+
 def create_sample_message():
     message = {
         "gyro_x": 1.23,
@@ -73,11 +72,11 @@ def create_sample_message():
         "accel_x": 4.56,
         "accel_y": 5.67,
         "accel_z": 6.78,
-        "fall": 1.0  # Ajusta a 1.0 para verdadero o 0.0 para falso si simulas un booleano
+        "fall": 1.0  
     }
-    return json.dumps(message)  # Convierte el diccionario en formato JSON
+    return json.dumps(message)  
 
-# Función para publicar el mensaje de muestra en el broker MQTT
+
 def publish_sample_message():
     client = mqtt.Client()
 
@@ -91,6 +90,6 @@ def publish_sample_message():
     finally:
         client.disconnect()
 
-# Ejecuta la publicación de ejemplo
+
 if __name__ == "__main__":
     publish_sample_message()

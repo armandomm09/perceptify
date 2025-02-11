@@ -4,14 +4,13 @@ const qrcode = require('qrcode-terminal');
 const { group } = require('console');
 
 const app = express();
-app.use(express.json()); // Para parsear JSON en las peticiones
+app.use(express.json()); 
 
 let clientReady = false;
 const client = new Client({
     authStrategy: new LocalAuth()
 });
 
-// Cuando el cliente esté listo
 client.once('ready', async () => {
     console.log('El cliente de WhatsApp está listo.');
     clientReady = true;
@@ -26,17 +25,14 @@ client.once('ready', async () => {
 
 });
 
-// Generar el código QR
 client.on('qr', (qr) => {
     console.log('Escanea este código QR con tu aplicación de WhatsApp:');
     qrcode.generate(qr, { small: true });
 });
 
-// Iniciar el cliente de WhatsApp
 client.initialize();
 
 
-// Función para enviar mensajes
 function sendMessage(number, message, group, img_id) {
     return new Promise(async (resolve, reject) => {
         if (clientReady) {
@@ -62,7 +58,6 @@ function sendMessage(number, message, group, img_id) {
     });
 }
 
-// Endpoint para recibir peticiones POST y enviar mensajes
 app.post('/send-message', async (req, res) => {
     const { number, message, group, img_id } = req.body;
 
@@ -78,7 +73,6 @@ app.post('/send-message', async (req, res) => {
     }
 });
 
-// Iniciar el servidor Express en el puerto 3000
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Servidor Express escuchando en el puerto ${PORT}`);

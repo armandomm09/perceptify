@@ -34,7 +34,7 @@ image = Image.fromarray(np.uint8(image)).convert("RGB")
 
 predictions = detector(
     image,
-    candidate_labels=["angry person", "disgusted person", "frightened person", "happy person", "neutral person", "sad person", "surprised person"],
+    candidate_labels=["teal ball", "white tube"],
 )
 
 

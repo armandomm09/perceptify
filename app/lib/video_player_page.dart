@@ -6,8 +6,8 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 
 class VideoPlayerPage extends StatefulWidget {
-  final int videoId; // El ID del video en la base de datos
-  final String videoUuid; // El UUID para reproducir el video
+  final int videoId; 
+  final String videoUuid; 
 
   const VideoPlayerPage({Key? key, required this.videoId, required this.videoUuid}) : super(key: key);
 
@@ -19,27 +19,27 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   late VideoPlayerController _controller;
   late Future<void> _initializeVideoPlayerFuture;
 
-  Map<String, dynamic>? analysisData; // Para almacenar los datos del análisis
+  Map<String, dynamic>? analysisData; 
   bool isLoadingAnalysis = true;
 
   @override
   void initState() {
     super.initState();
-    String videoUrl = 'http://localhost:8000/emotion_video/${widget.videoUuid}';
+    String videoUrl = 'http://10.50.87.175:8000/emotion_video/${widget.videoUuid}';
 
-    // Inicializar el controlador del reproductor de video
+   
     _controller = VideoPlayerController.network(videoUrl);
     _initializeVideoPlayerFuture = _controller.initialize();
 
-    // Configurar para que el video se repita en bucle
+   
     _controller.setLooping(true);
 
-    // Obtener los datos del análisis
+   
     fetchAnalysisData();
   }
 
   Future<void> fetchAnalysisData() async {
-    final response = await http.get(Uri.parse('http://localhost:8000/emotions_by_video/${widget.videoId}'));
+    final response = await http.get(Uri.parse('http://10.50.87.175:8000/emotions_by_video/${widget.videoId}'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -56,14 +56,14 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
   @override
   void dispose() {
-    // Liberar los recursos del controlador cuando ya no se necesite
+   
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Construir la interfaz, incluyendo el reproductor de video y el análisis
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -73,7 +73,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Reproductor de video
+          
             SizedBox(height: 50,),
             Center(
               child: Container(
@@ -82,13 +82,13 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                   future: _initializeVideoPlayerFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
-                      // Reproductor de video listo
+                   
                       return AspectRatio(
                         aspectRatio: _controller.value.aspectRatio,
                         child: VideoPlayer(_controller),
                       );
                     } else {
-                      // Indicador de carga mientras el video se inicializa
+                    
                       return const Center(child: CircularProgressIndicator());
                     }
                   },
@@ -107,7 +107,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Reproducir o pausar el video
+          
           setState(() {
             _controller.value.isPlaying ? _controller.pause() : _controller.play();
           });
@@ -118,16 +118,16 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   }
 
   Widget buildAnalysisSection() {
-    // Construir la sección de análisis con la emoción más frecuente y el gráfico
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Mostrar la emoción más frecuente
+          
           buildMostFrequentEmotion(),
           const SizedBox(height: 20),
-          // Mostrar el gráfico de pastel de las probabilidades de emociones
+         
           buildPieChart(),
         ],
       ),
@@ -135,10 +135,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   }
 
   Widget buildMostFrequentEmotion() {
-    // Mostrar la emoción más frecuente de forma prominente
+    
     String emotion = analysisData!['most_frequent_emotion'];
 
-    // Mapeo de emociones a iconos o imágenes si se desea
+    
     Map<String, IconData> emotionIcons = {
       'angry': Icons.sentiment_very_dissatisfied,
       'disgust': Icons.sentiment_dissatisfied,
@@ -173,7 +173,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   }
 
   Widget buildPieChart() {
-    // Construir el gráfico de pastel utilizando fl_chart
+    
     Map<String, dynamic> avgProbs = analysisData!['average_probabilities'];
 
     List<PieChartSectionData> sections = [];
@@ -199,7 +199,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
     int index = 0;
     for (var emotion in emotions) {
-      double value = avgProbs['avg_$emotion'] * 100; // Convertir a porcentaje
+      double value = avgProbs['avg_$emotion'] * 100; 
       if (value > 0) {
         sections.add(PieChartSectionData(
           color: colors[index % colors.length],
